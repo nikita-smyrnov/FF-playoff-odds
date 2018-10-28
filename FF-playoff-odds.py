@@ -1,11 +1,34 @@
 # model assumes that average points scored per game and standard deviation do not change across the course of the season
 # 10k simulations takes 1 minute
-
 import pandas as pd
 import numpy as np
 import scipy.stats as stats
 from scipy.stats import norm
 import random
+
+def handleTies(wins, means, maxVal, division):
+    ties = []
+    if division == 1:
+        for i in range(5):
+            if wins[i] == maxVal:
+                ties.append(i)
+    elif division == 2:
+         for i in range(5, 10):
+            if wins[i] == maxVal:
+                ties.append(i)
+    else:
+        for i in range(10):
+            if wins[i] == maxVal:
+                ties.append(i)
+    
+    maxMean = -1
+    maxIndex = ties[0]
+    for i in ties:
+        if maxMean < means[i]:
+            maxMean = means[i]
+            maxIndex = i
+        
+    return maxIndex
 
 data = pd.read_csv("gamedata.csv");
 data = data.values
@@ -52,19 +75,19 @@ for sims in range(100000):
     for i in range(6):
         if i == 0:
             maxVal = max(numberOfWins[0:5])
-            maxIndex = numberOfWins.index(maxVal)
+            maxIndex = handleTies(numberOfWins, teamExpectedMeans, maxVal, i + 1)
             playoffs[maxIndex] += 1
             firstRoundBye[maxIndex] += 1
             numberOfWins[maxIndex] = -1
         elif i == 1:
             maxVal = max(numberOfWins[5:10])
-            maxIndex = numberOfWins.index(maxVal)
+            maxIndex = handleTies(numberOfWins, teamExpectedMeans, maxVal, i + 1)
             playoffs[maxIndex] += 1
             firstRoundBye[maxIndex] += 1
-            numberOfWins[maxIndex] = -1
+            numberOfWins[maxIndex] = -1  
         else:
             maxVal = max(numberOfWins)
-            maxIndex = numberOfWins.index(maxVal)
+            maxIndex = handleTies(numberOfWins, teamExpectedMeans, maxVal, i + 1)
             playoffs[maxIndex] += 1
             numberOfWins[maxIndex] = -1
 
