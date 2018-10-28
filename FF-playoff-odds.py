@@ -25,6 +25,7 @@ teamMatchups = [[ [1, 9], [6, 8], [0, 4], [5, 7], [2, 3] ],
                 [ [0, 1], [9, 2], [3, 5], [4, 6], [7, 8] ],
                 [ [0, 8], [9, 7], [2, 6], [4, 5], [1, 3] ]]
 playoffs = np.zeros(10)
+firstRoundBye = np.zeros(10)
 results = np.zeros(10)
 
 for sims in range(100000):
@@ -53,11 +54,13 @@ for sims in range(100000):
             maxVal = max(numberOfWins[0:5])
             maxIndex = numberOfWins.index(maxVal)
             playoffs[maxIndex] += 1
+            firstRoundBye[maxIndex] += 1
             numberOfWins[maxIndex] = -1
         elif i == 1:
             maxVal = max(numberOfWins[5:10])
             maxIndex = numberOfWins.index(maxVal)
             playoffs[maxIndex] += 1
+            firstRoundBye[maxIndex] += 1
             numberOfWins[maxIndex] = -1
         else:
             maxVal = max(numberOfWins)
@@ -68,4 +71,7 @@ for sims in range(100000):
 for i in range (10):
     results[i] /= 100000
     playoffs[i] /= 1000
-    print(data[i][0] + "'s projected wins: " + str(results[i]) + ", projected playoff odds: " + str(playoffs[i]))
+    firstRoundBye[i] /= 1000
+    print(data[i][0] + "'s projected wins: " + str(results[i]) + 
+          ", projected playoff odds: " + str(playoffs[i]) + 
+          ", projected odds of getting a first-round bye: " + str(firstRoundBye[i]))
