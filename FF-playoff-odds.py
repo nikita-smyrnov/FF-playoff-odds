@@ -10,6 +10,30 @@ SIMULATIONS = 10000
 TEAMS = 10
 PLAYOFF_TEAMS = 6
 
+def handleTies(wins, means, maxVal, division):
+    ties = []
+    if division == 0:
+        for i in range(int(TEAMS/2)):
+            if wins[i] == maxVal:
+                ties.append(i)
+    elif division == 1:
+         for i in range(int(TEAMS/2), TEAMS):
+            if wins[i] == maxVal:
+                ties.append(i)
+    else:
+        for i in range(TEAMS):
+            if wins[i] == maxVal:
+                ties.append(i)
+    
+    maxMean = -1
+    maxIndex = ties[0]
+    for i in ties:
+        if maxMean < means[i]:
+            maxMean = means[i]
+            maxIndex = i
+        
+    return maxIndex
+
 data = pd.read_csv("gamedata.csv");
 data = data.values
 
