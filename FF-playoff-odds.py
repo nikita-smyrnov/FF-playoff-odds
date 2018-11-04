@@ -1,14 +1,13 @@
 # model assumes that average points scored per game and standard deviation do not change across the course of the season
-# 100k simulations takes approximately 10 minutes
+# 100k simulations takes around 8-10 minutes
 import pandas as pd
 import numpy as np
 import scipy.stats as stats
 from scipy.stats import norm
 import random
 
-SIMULATIONS = 10000
-TEAMS = 10
-PLAYOFF_TEAMS = 6
+SIMULATIONS = int(input("How many simulations would you like to run: "))
+PLAYOFF_TEAMS = int(input("How many playoff spots are there: "))
 
 def handleTies(wins, means, maxVal, division):
     ties = []
@@ -36,6 +35,7 @@ def handleTies(wins, means, maxVal, division):
 
 data = pd.read_csv("gamedata.csv");
 data = data.values
+TEAMS = len(data)
 
 teamMeans = np.empty(TEAMS)
 teamStds = np.empty(TEAMS)
@@ -45,19 +45,22 @@ for i in range(TEAMS):
     teamMeans[i] = data[i][5:len(data[i])].mean()
     teamStds[i] = data[i][5:len(data[i])].std()
 
-teamMatchups = [[ [0, 7], [9, 6], [1, 4], [2, 5], [3, 8] ],
-                [ [0, 6], [9, 5], [1, 8], [2, 4], [3, 7] ],
-                [ [0, 3], [8, 2], [9, 4], [1, 7], [5, 6] ],
-                [ [0, 1], [9, 2], [3, 5], [4, 6], [7, 8] ],
-                [ [0, 8], [9, 7], [2, 6], [4, 5], [1, 3] ]]
+teamMatchups = pd.read_csv("matchups.csv")
+teamMatchups = teamMatchups.values
+teamMatchups = teamMatchups.transpose()
+
+for i in range(len(teamMatchups)):
+    for j in range(TEAMS):
+        teamMatchups[i][j] = data[:,0].tolist().index(teamMatchups[i][j]);
+
+numberOfWins = np.zeros(TEAMS)
 playoffs = np.zeros(TEAMS)
 firstRoundBye = np.zeros(TEAMS)
 results = np.zeros(TEAMS)
 
-start = datetime.datetime.now().replace(microsecond=0)
-
 for sims in range(SIMULATIONS):
-    numberOfWins = [5, 6, 0, 4, 5.5, 5, 6, 1.5, 3, 4]
+    for i in range(TEAMS):
+        numberOfWins[i] = data[i][1] + 0.5*data[i][3]
     
     for i in range(len(teamMatchups)):
         for j in range(TEAMS):
@@ -98,8 +101,10 @@ for sims in range(SIMULATIONS):
 
 for i in range(TEAMS):
     results[i] /= SIMULATIONS
-    playoffs[i] /= int(SIMULATIONS/TEAMS/10)
-    firstRoundBye[i] /= int(SIMULATIONS/TEAMS/10)
+    playoffs[i] /= int(SIMULATIONS/100)
+    firstRoundBye[i] /= int(SIMULATIONS/100)
     print(data[i][0] + "'s projected wins: " + str(results[i]) + 
           ", projected playoff odds: " + str(playoffs[i]) + 
           ", projected odds of getting a first-round bye: " + str(firstRoundBye[i]))
+
+input("Press enter to exit. ")
